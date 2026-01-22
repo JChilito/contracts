@@ -2,6 +2,8 @@
 
 namespace App\Service\Payment\Strategy;
 
+use App\ValueObject\PaymentMethod;
+
 class Paypal implements PaymentStrategy
 {
     private const BALANCE_INTEREST = 0.01;
@@ -19,6 +21,11 @@ class Paypal implements PaymentStrategy
             'total' => round($total, 2),
         ];
 
+    }
+
+    public function gettype(): string
+    {
+        return PaymentMethod::PAYPAL;
     }
 
 }
