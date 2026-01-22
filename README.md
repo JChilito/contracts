@@ -16,7 +16,7 @@ Este proyecto fue construido siguiendo principios de **Clean Code** y **DDD (Dom
 
 1.  **Clonar el repositorio:**
     ```bash
-    git clone [https://github.com/TU_USUARIO/contracts.git](https://github.com/TU_USUARIO/contracts.git)
+    git clone [https://github.com/JChilito/contracts.git](https://github.com/JChilito/contracts.git)
     cd contracts
     ```
 
