@@ -10,24 +10,22 @@ use App\Service\Payment\Factory\PaymentFactory;
 use App\ValueObject\Money;
 use App\ValueObject\PaymentMethod;
 use App\DTO\Response\InstallmentResponse;
+use App\Mappers\ContractMapper;
 
 class ContractService implements ContractInterface
 {
 
     public function __construct(
         private readonly ContractRepository $contractRepository,
-        private readonly PaymentFactory $paymentFactory
+        private readonly PaymentFactory $paymentFactory,
+        private readonly ContractMapper $contractMapper
     )
     {
     }
 
     public function createContract(ContractRequest $request): Contract
     {
-        $contract = new Contract();
-        $contract->setContractNumber((int)$request->contractNumber);
-        $contract->setContractDate($request->contractDate);
-        $contract->setTotalValue(new Money((string)$request->totalValue));
-        $contract->setPaymentMethod(new PaymentMethod($request->paymentMethod));
+        $contract = $this->contractMapper->toDomain($request);
 
         $this->contractRepository->save($contract, true);
 
@@ -52,40 +50,38 @@ class ContractService implements ContractInterface
         $strategy = $this->paymentFactory->getPaymentMethod($paymentMethod);
         $baseInstallmentsAmount = $totalValue / $months;
 
-        $response = new ContractResponse();
-        $response->totalContractValue = $totalValue;
+        $tempTotalBalanceInterest = 0.0;
+        $tempTotalRate = 0.0;
+        $installmentsData = [];
 
-        for($month = 1; $month <= $months; $month++){
+        for ($month = 1; $month <= $months; $month++) {
             $calculation = $strategy->calculateInstallments($baseInstallmentsAmount);
-
+            
             $dueDate = \DateTime::createFromInterface($contract->getContractDate());
             $dueDate->add(new \DateInterval("P{$month}M"));
 
-            $response->installments[] = new InstallmentResponse(
-                quotaNumber: $month,
-                expirationDate: $dueDate->format('Y-m-d'),
-                amountBase: $calculation['amount_base'],
-                balanceInterest: $calculation['balance_interest'],
-                paymentRate: $calculation['payment_rate'],
-                totalValue: $calculation['total']
-            );
+            $installmentsData[] = [
+                'quotaNumber' => $month,
+                'expirationDate' => $dueDate->format('Y-m-d'),
+                'amountBase' => $calculation['amount_base'],
+                'balanceInterest' => $calculation['balance_interest'],
+                'paymentRate' => $calculation['payment_rate'],
+                'totalValue' => $calculation['total']
+            ];
 
-            $response->totalBalanceInterest += $calculation['balance_interest'];
-            $response->totalRate += $calculation['payment_rate'];
-
+            $tempTotalBalanceInterest += $calculation['balance_interest'];
+            $tempTotalRate += $calculation['payment_rate'];
         }
 
-        $response->totalBalanceInterest = round($response->totalBalanceInterest, 2);
-        $response->totalRate = round($response->totalRate, 2);
+        $grandTotal = $totalValue + $tempTotalBalanceInterest + $tempTotalRate;
 
-        $response->totalValueWithInterestAndRates = round (
-            $response->totalContractValue +
-            $response->totalBalanceInterest +
-            $response->totalRate,
-            2
+        return $this->contractMapper->toDTO(
+            $contract,
+            $tempTotalBalanceInterest,
+            $tempTotalRate,
+            $grandTotal,
+            $installmentsData
         );
-
-        return $response;
 
     }
 }
