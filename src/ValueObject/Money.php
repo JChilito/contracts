@@ -2,10 +2,13 @@
 
 namespace App\ValueObject;
 
+use Doctrine\ORM\Mapping as ORM;
 use Webmozart\Assert\Assert;
 
+#[ORM\Embeddable]
 class Money
 {
+    #[ORM\Column(type: 'decimal', precision: 15, scale: 2)]
     private string $amount;
 
     public function __construct(string $amount)

@@ -18,10 +18,10 @@ class Contract
     #[ORM\Column]
     private ?\DateTimeImmutable $contractDate = null;
 
-    #[ORM\Column(length: 255)]
+    #[ORM\Embedded(class: Money::class)]
     private ?Money $totalValue = null;
 
-    #[ORM\Column(length: 255)]
+    #[ORM\Embedded(class: PaymentMethod::class)]
     private ?PaymentMethod $paymentMethod = null;
 
     #[ORM\Column]
@@ -30,13 +30,6 @@ class Contract
     public function getId(): ?int
     {
         return $this->id;
-    }
-
-    public function setId(int $id): static
-    {
-        $this->id = $id;
-
-        return $this;
     }
 
     public function getContractDate(): ?\DateTimeImmutable
@@ -51,7 +44,7 @@ class Contract
         return $this;
     }
 
-    public function getTotalValue(): ?string
+    public function getTotalValue(): ?Money
     {
         return $this->totalValue;
     }

@@ -2,8 +2,10 @@
 
 namespace App\ValueObject;
 
+use Doctrine\ORM\Mapping as ORM;
 use Webmozart\Assert\Assert;
 
+#[ORM\Embeddable]
 class PaymentMethod
 {
     public const PAYPAL = 'paypal';
@@ -13,6 +15,7 @@ class PaymentMethod
         self::PAYONLINE,
     ];
 
+    #[ORM\Column(length: 100)]
     private ?string $value = null;
 
     public function __construct(string $value)
