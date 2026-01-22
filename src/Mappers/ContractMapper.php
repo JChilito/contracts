@@ -43,6 +43,7 @@ class ContractMapper
         $response->totalBalanceInterest = $this->formatMoney($totalBalanceInterest);
         $response->totalRate = $this->formatMoney($totalRate);
         $response->totalValueWithInterestAndRates = $this->formatMoney($grandTotal);
+        $response->paymentMethod = $contract->getPaymentMethod()->getValue();
 
         foreach ($installmentsData as $data) {
             $response->installments[] = new InstallmentResponse(
