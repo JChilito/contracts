@@ -4,7 +4,7 @@ namespace App\Service\Payment\Strategy;
 
 use App\ValueObject\PaymentMethod;
 
-class Paypal implements PaymentStrategy
+class PayPal implements PaymentStrategy
 {
     private const BALANCE_INTEREST = 0.01;
     private const PAYMENT_RATE = 0.02;

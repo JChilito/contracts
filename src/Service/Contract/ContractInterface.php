@@ -15,5 +15,11 @@ interface ContractInterface
      */
     public function createContract(ContractRequest $request): Contract;
 
+    /**
+     * This method projects the installments for a given contract over a specified number of months.
+     * @param int $contractId
+     * @param int $months
+     * @return ContractResponse
+     */
     public function projectInstallments(int $contractId, int $months): ?ContractResponse;
 }
